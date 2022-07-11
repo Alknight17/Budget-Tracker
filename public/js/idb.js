@@ -21,19 +21,19 @@ request.onerror = ((e) => {
 });
 
 // if app is offline, save all pending transactions
-saveRecord((record) => {
+function saveRecord(record) {
     const transaction = idb.transaction(["pending"], "readwrite");
     const store = transaction.objectStore("pending");
     store.add(record);
-})
+};
 
 // if app is online, get all pending transactions and move them into the db
-checkDatabase(() => {
+function checkDatabase() {
     const transaction = idb.transaction(["pending"], "readwrite");
     const store = transaction.objectStore("pending");
     const getAll = store.getAll();
 
-    getAll.onsuccess = (() => {
+    getAll.onsuccess = function () {
         if (getAll.result.length > 0) {
             fetch("/api/transaction/bulk", {
                 method: "POST",
@@ -50,13 +50,13 @@ checkDatabase(() => {
                 store.clear();
             });
         }
-        deletePending(() => {
+        function deletePending() {
             const transaction = db.transaction(["pending"], "readwrite");
             const store = transaction.objectStore("pending");
             store.clear();
-        });
-    });
-});
+        };
+    };
+};
 
 
 // check to see if app is online
